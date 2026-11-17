@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة متابعة المتطوعين | ديوان تاريخ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #141414;
+    --gold: #C8A24A;
+    --gold-light: #E8D29A;
+    --cream: #F5EFE2;
+    --red: #B33A2B;
+    --ink: #1C1A17;
+    --muted: #6B6253;
+    --white: #FFFFFF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  header.top {
+    background: var(--black);
+    color: var(--gold);
+    padding: 16px 24px;
+    border-bottom: 4px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  header.top h1 { font-size: 20px; margin: 0; }
+  header.top .actions { display: flex; gap: 8px; }
+
+  main { max-width: 1200px; margin: 24px auto; padding: 0 16px 60px; }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid var(--gold);
+    margin-bottom: 20px;
+  }
+
+  /* شاشة الدخول */
+  #loginView { max-width: 420px; margin: 60px auto; }
+  #loginView h2 { color: var(--black); margin-top: 0; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-weight: 700; margin-bottom: 6px; }
+  input, select {
+    width: 100%;
+    font: inherit;
+    padding: 10px 12px;
+    border: 1.5px solid #d9cfb8;
+    border-radius: 10px;
+    background: #fffdf8;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(200, 162, 74, 0.25);
+  }
+
+  button {
+    font: inherit;
+    font-weight: 700;
+    border: 2px solid var(--black);
+    border-radius: 999px;
+    padding: 10px 22px;
+    cursor: pointer;
+    background: var(--gold);
+    color: var(--black);
+  }
+  button.secondary { background: transparent; color: var(--gold); border-color: var(--gold); }
+  button:disabled { opacity: 0.6; cursor: wait; }
+  button.block { width: 100%; }
+
+  .msg-error {
+    display: none;
+    background: #fbeae7;
+    color: var(--red);
+    border: 1.5px solid var(--red);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-weight: 600;
+  }
+
+  /* الداشبورد */
+  #dashView { display: none; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 16px;
+    border-right: 4px solid var(--gold);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  }
+  .stat .label { font-size: 13px; color: var(--muted); }
+  .stat .value { font-size: 26px; font-weight: 800; color: var(--black); }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 720px) {
+    .toolbar { grid-template-columns: 1fr; }
+  }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td {
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid #ece4d0;
+    white-space: nowrap;
+  }
+  th { background: var(--black); color: var(--gold); position: sticky; top: 0; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #fbf6e8; }
+
+  .empty { text-align: center; color: var(--muted); padding: 30px; }
+
+  /* نافذة التفاصيل */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    max-width: 680px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 24px;
+    border-top: 4px solid var(--gold);
+  }
+  .modal h2 { margin-top: 0; color: var(--black); }
+  .detail-row {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ece4d0;
+  }
+  .detail-row .k { font-weight: 700; color: var(--muted); }
+  .detail-row .v { white-space: pre-wrap; word-break: break-word; }
+  .modal .close-row { text-align: left; margin-top: 16px; }
+
+  .readonly-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>لوحة متابعة المتطوعين · ديوان تاريخ</h1>
+  <div class="actions" id="headerActions" style="display:none">
+    <button class="secondary" id="refreshBtn">تحديث</button>
+    <button class="secondary" id="logoutBtn">تسجيل الخروج</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- شاشة الدخول -->
+  <section id="loginView" class="card">
+    <h2>تسجيل دخول الأدمن</h2>
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="email">البريد الإلكتروني</label>
+        <input type="email" id="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">كلمة المرور</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="block" id="loginBtn">دخول</button>
+      <div class="msg-error" id="loginError">البيانات غير صحيحة، تأكد من الإيميل وكلمة المرور.</div>
+    </form>
+  </section>
+
+  <!-- الداشبورد -->
+  <section id="dashView">
+    <p class="readonly-note">عرض فقط: لا يمكن تعديل أو حذف الطلبات من هذه اللوحة.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="label">إجمالي الطلبات</div><div class="value" id="statTotal">0</div></div>
+      <div class="stat"><div class="label">لجنة البحث والتوثيق</div><div class="value" id="statRes">0</div></div>
+      <div class="stat"><div class="label">لجنة المحتوى والتحرير</div><div class="value" id="statContent">0</div></div>
+      <div class="stat"><div class="label">لجنة الإعلام والإنتاج</div><div class="value" id="statMedia">0</div></div>
+      <div class="stat"><div class="label">لجنة البرامج والأنشطة</div><div class="value" id="statPrograms">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input type="search" id="searchInput" placeholder="ابحث بالاسم أو الإيميل أو المدينة">
+        <select id="committeeFilter">
+          <option value="">كل اللجان</option>
+          <option value="البحث والتوثيق التاريخي">البحث والتوثيق التاريخي</option>
+          <option value="المحتوى والتحرير">المحتوى والتحرير</option>
+          <option value="الإعلام والإنتاج">الإعلام والإنتاج</option>
+          <option value="البرامج والأنشطة">البرامج والأنشطة</option>
+        </select>
+        <div class="msg-error" id="dataError" style="margin:0">تعذر تحميل البيانات.</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>اللجنة الأولى</th>
+              <th>السن</th>
+              <th>المدينة</th>
+              <th>الهاتف</th>
+              <th>الأيام</th>
+              <th>الساعات</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="empty" id="emptyState" style="display:none">لا توجد طلبات مطابقة.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- نافذة تفاصيل الطلب -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h2 id="modalTitle">تفاصيل الطلب</h2>
+    <div id="modalBody"></div>
+    <div class="close-row"><button class="secondary" id="closeModal">إغلاق</button></div>
+  </div>
+</div>
+
+<script>
+  // إعدادات Supabase (المفتاح العام، والصلاحيات محمية داخل قاعدة البيانات)
+  const SUPABASE_URL = 'https://zmavkswadmttfgpkcaaj.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_6-s_VE3OscbKndU_nNTQkQ_o1blIXTs';
+
+  // التوكن يتحفظ في الذاكرة فقط، ويتمسح عند تسجيل الخروج أو قفل الصفحة
+  let accessToken = null;
+  let volunteers = [];
+
+  const $ = (id) => document.getElementById(id);
+
+  const loginView = $('loginView');
+  const dashView = $('dashView');
+  const headerActions = $('headerActions');
+
+  function showLogin() {
+    accessToken = null;
+    volunteers = [];
+    dashView.style.display = 'none';
+    headerActions.style.display = 'none';
+    loginView.style.display = 'block';
+    $('password').value = '';
+  }
+
+  function showDashboard() {
+    loginView.style.display = 'none';
+    dashView.style.display = 'block';
+    headerActions.style.display = 'flex';
+  }
+
+  async function signIn(email, password) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error('auth');
+    const data = await res.json();
+    return data.access_token;
+  }
+
+  async function fetchVolunteers() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/volunteers?select=*&order=created_at.desc`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+    if (res.status === 401 || res.status === 403) throw new Error('unauthorized');
+    if (!res.ok) throw new Error('fetch');
+    return res.json();
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  function renderStats(list) {
+    const count = (c) => list.filter((v) => v.committee_1 === c).length;
+    $('statTotal').textContent = list.length;
+    $('statRes').textContent = count('البحث والتوثيق التاريخي');
+    $('statContent').textContent = count('المحتوى والتحرير');
+    $('statMedia').textContent = count('الإعلام والإنتاج');
+    $('statPrograms').textContent = count('البرامج والأنشطة');
+  }
+
+  function renderRows() {
+    const q = $('searchInput').value.trim().toLowerCase();
+    const committee = $('committeeFilter').value;
+
+    const filtered = volunteers.filter((v) => {
+      const matchesCommittee = !committee || v.committee_1 === committee;
+      const haystack = [v.full_name, v.email, v.city].join(' ').toLowerCase();
+      const matchesSearch = !q || haystack.includes(q);
+      return matchesCommittee && matchesSearch;
+    });
+
+    const tbody = $('rows');
+    tbody.textContent = '';
+    $('emptyState').style.display = filtered.length ? 'none' : 'block';
+
+    filtered.forEach((v) => {
+      const tr = document.createElement('tr');
+      const cells = [
+        formatDate(v.created_at),
+        v.full_name,
+        v.committee_1,
+        v.age,
+        v.city,
+        v.phone,
+        (v.available_days || []).join('، '),
+        v.weekly_hours,
+      ];
+      cells.forEach((text) => {
+        const td = document.createElement('td');
+        td.textContent = text ?? '';
+        tr.appendChild(td);
+      });
+      tr.addEventListener('click', () => openDetails(v));
+      tbody.appendChild(tr);
+    });
+  }
+
+  const DETAIL_FIELDS = [
+    ['التاريخ', (v) => formatDate(v.created_at)],
+    ['الاسم الكامل', (v) => v.full_name],
+    ['البريد الإلكتروني', (v) => v.email],
+    ['الهاتف', (v) => v.phone],
+    ['المدينة', (v) => v.city],
+    ['السن', (v) => v.age],
+    ['المستوى التعليمي', (v) => v.education],
+    ['التخصص أو الجامعة', (v) => v.major],
+    ['الوظيفة', (v) => v.job],
+    ['اللجنة الأولى', (v) => v.committee_1],
+    ['اللجنة الثانية', (v) => v.committee_2],
+    ['لماذا يناسب هذه اللجنة', (v) => v.fit_reason],
+    ['المهارات', (v) => (v.skills || []).join('، ')],
+    ['مهارات أخرى', (v) => v.other_skills],
+    ['مستوى المهارات (من 5)', (v) => v.skill_level],
+    ['الأدوات', (v) => v.tools],
+    ['سبق له التطوع أو العمل', (v) => (v.had_experience === null ? '' : v.had_experience ? 'نعم' : 'لا')],
+    ['أبرز تجربة', (v) => v.experience_details],
+    ['رابط الأعمال', (v) => v.portfolio_url],
+    ['أيام العمل', (v) => (v.available_days || []).join('، ')],
+    ['الساعات الأسبوعية', (v) => v.weekly_hours],
+    ['الأوقات المفضلة', (v) => (v.preferred_times || []).join('، ')],
+    ['الالتزام بالمواعيد', (v) => v.commitment],
+    ['مدة الالتزام', (v) => v.duration],
+    ['الدافع', (v) => v.motivation],
+    ['ما يأمل في إضافته', (v) => v.contribution],
+    ['كيف عرف عن الديوان', (v) => v.heard_from],
+    ['موافقة التوثيق', (v) => (v.consent_terms ? 'نعم' : 'لا')],
+    ['موافقة السرية', (v) => (v.consent_confidentiality ? 'نعم' : 'لا')],
+    ['موافقة استخدام البيانات', (v) => (v.consent_data ? 'نعم' : 'لا')],
+    ['موافقة استخدام الصور', (v) => (v.consent_media ? 'نعم' : 'لا')],
+  ];
+
+  function openDetails(v) {
+    $('modalTitle').textContent = v.full_name || 'تفاصيل الطلب';
+    const body = $('modalBody');
+    body.textContent = '';
+    DETAIL_FIELDS.forEach(([label, getter]) => {
+      const row = document.createElement('div');
+      row.className = 'detail-row';
+      const k = document.createElement('div');
+      k.className = 'k';
+      k.textContent = label;
+      const val = document.createElement('div');
+      val.className = 'v';
+      const value = getter(v);
+      val.textContent = value === null || value === undefined || value === '' ? '—' : value;
+      row.append(k, val);
+      body.appendChild(row);
+    });
+    $('modalBg').style.display = 'flex';
+  }
+
+  function closeDetails() {
+    $('modalBg').style.display = 'none';
+  }
+
+  async function loadDashboard() {
+    $('dataError').style.display = 'none';
+    try {
+      volunteers = await fetchVolunteers();
+      renderStats(volunteers);
+      renderRows();
+    } catch (err) {
+      if (err.message === 'unauthorized') {
+        showLogin();
+        $('loginError').textContent = 'انتهت الجلسة، سجّل الدخول مرة أخرى.';
+        $('loginError').style.display = 'block';
+        return;
+      }
+      $('dataError').style.display = 'block';
+    }
+  }
+
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('loginError').style.display = 'none';
+    const email = $('email').value.trim();
+    const password = $('password').value;
+    if (!email || !password) {
+      $('loginError').textContent = 'اكتب الإيميل وكلمة المرور.';
+      $('loginError').style.display = 'block';
+      return;
+    }
+
+    $('loginBtn').disabled = true;
+    try {
+      accessToken = await signIn(email, password);
+      showDashboard();
+      await loadDashboard();
+    } catch (err) {
+      $('loginError').textContent = 'البيانات غير صحيحة، تأكد من الإيميل وكلمة المرور.';
+      $('loginError').style.display = 'block';
+    } finally {
+      $('loginBtn').disabled = false;
+    }
+  });
+
+  $('refreshBtn').addEventListener('click', loadDashboard);
+  $('logoutBtn').addEventListener('click', showLogin);
+  $('searchInput').addEventListener('input', renderRows);
+  $('committeeFilter').addEventListener('change', renderRows);
+  $('closeModal').addEventListener('click', closeDetails);
+  $('modalBg').addEventListener('click', (e) => {
+    if (e.target === $('modalBg')) closeDetails();
+  });
+</script>
+
+</body>
+</html>
