@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>استمارة التطوع | ديوان تاريخ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ألوان مأخوذة من الشعار (تقريبية، راجعها مع أكواد الشعار الأصلية) */
+  :root {
+    --black: #141414;
+    --gold: #C8A24A;
+    --gold-light: #E8D29A;
+    --cream: #F5EFE2;
+    --red: #B33A2B;
+    --blue: #1F4E8C;
+    --ink: #1C1A17;
+    --muted: #6B6253;
+    --white: #FFFFFF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.8;
+  }
+
+  header.hero {
+    background: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 48px 20px 60px;
+    border-bottom: 6px solid var(--gold);
+  }
+  header.hero img.logo {
+    width: min(260px, 60%);
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+  header.hero h1 {
+    font-size: clamp(26px, 5vw, 38px);
+    margin: 0 0 10px;
+    color: var(--gold);
+  }
+  header.hero p {
+    max-width: 680px;
+    margin: 0 auto;
+    font-size: 17px;
+    opacity: 0.92;
+  }
+
+  main {
+    max-width: 820px;
+    margin: -32px auto 60px;
+    padding: 0 16px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.10);
+    border-top: 4px solid var(--gold);
+  }
+  .card h2 {
+    color: var(--black);
+    font-size: 22px;
+    margin: 0 0 14px;
+  }
+  .card p { margin: 0 0 10px; }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .pillar {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-right: 4px solid var(--red);
+  }
+  .pillar strong { color: var(--black); display: block; margin-bottom: 4px; }
+
+  .committees {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .committee {
+    border: 1px solid var(--gold-light);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+  .committee strong { color: var(--red); }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--black);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 18px;
+  }
+  .section-title span {
+    background: var(--gold);
+    color: var(--black);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field > label.q,
+  .field > span.q {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .req { color: var(--red); margin-inline-start: 4px; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    font: inherit;
+    padding: 11px 14px;
+    border: 1.5px solid #d9cfb8;
+    border-radius: 10px;
+    background: #fffdf8;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  textarea { min-height: 110px; resize: vertical; }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(200, 162, 74, 0.25);
+  }
+  .invalid { border-color: var(--red) !important; }
+
+  .options { display: grid; gap: 8px; }
+  .options.days {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid #e6dcc4;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fffdf8;
+  }
+  .option:hover { border-color: var(--gold); }
+  .option input { margin-top: 6px; accent-color: var(--red); }
+  .option small { display: block; color: var(--muted); font-size: 13px; }
+
+  .scale {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .scale label {
+    flex: 1;
+    text-align: center;
+    border: 1.5px solid #e6dcc4;
+    border-radius: 10px;
+    padding: 8px 0;
+    cursor: pointer;
+    background: #fffdf8;
+    font-weight: 600;
+  }
+  .scale input { display: none; }
+  .scale label:has(input:checked) {
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--gold);
+  }
+  .scale-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .error-box {
+    display: none;
+    background: #fbeae7;
+    color: var(--red);
+    border: 1.5px solid var(--red);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .submit-row { text-align: center; margin-top: 10px; }
+  button.submit {
+    background: var(--gold);
+    color: var(--black);
+    font: inherit;
+    font-weight: 800;
+    font-size: 18px;
+    border: 2px solid var(--black);
+    padding: 14px 44px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(200, 162, 74, 0.35);
+  }
+  button.submit:hover { filter: brightness(1.05); }
+  button.submit:disabled { opacity: 0.6; cursor: wait; }
+
+  .success {
+    display: none;
+    text-align: center;
+    padding: 36px 20px;
+  }
+  .success h2 { color: var(--black); }
+  .success p { font-size: 17px; }
+
+  footer {
+    text-align: center;
+    background: var(--black);
+    color: var(--gold);
+    font-size: 13px;
+    padding: 18px;
+  }
+
+  @media (max-width: 560px) {
+    .card { padding: 22px 18px; }
+    header.hero { padding: 36px 16px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img class="logo" src="logo.jpg" alt="شعار ديوان تاريخ">
+  <h1>ديوان تاريخ</h1>
+  <p>مؤسسة شبابية تجمع بين البحث التاريخي الموثق والإنتاج الثقافي والإعلامي، وتسعى إلى نشر الوعي بتاريخنا وحضارتنا بأسلوب مسؤول وجذاب.</p>
+</header>
+
+<main>
+
+  <section class="card">
+    <h2>من نحن</h2>
+    <p>ديوان تاريخ مؤسسة شبابية ذات إدارة وتنظيم داخلي، تعمل على مسارين متكاملين: مسار بحثي يُنتج أبحاثًا ودراسات تاريخية موثقة، ومسار ثقافي وإعلامي يحوّل هذه المعرفة إلى مقالات ومحتوى رقمي وفعاليات تصل إلى الجمهور.</p>
+    <p>نؤمن بأن البحث هو أساس المعلومة، وأن التحرير وسيلة صياغتها، وأن الإعلام وسيلة تقديمها، وأن البرامج والأنشطة تحوّلها إلى تجربة وتفاعل.</p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <strong>رسالتنا</strong>
+        نشر الوعي التاريخي وإنتاج معرفة موثقة يمكن الاعتماد عليها، وتقديمها للشباب والجمهور بأسلوب دقيق وممتع.
+      </div>
+      <div class="pillar">
+        <strong>رؤيتنا</strong>
+        أن نكون مؤسسة شبابية رائدة في المعرفة التاريخية الموثقة، تسهم في فهم الحضارة والتراث وترسيخ الانتماء.
+      </div>
+    </div>
+
+    <h2 style="margin-top:22px">لجاننا</h2>
+    <div class="committees">
+      <div class="committee"><strong>لجنة البحث والتوثيق التاريخي</strong><br>إعداد الأبحاث والدراسات، والتحقق من المصادر والمعلومات.</div>
+      <div class="committee"><strong>لجنة المحتوى والتحرير</strong><br>كتابة المقالات والسلاسل التاريخية، ومراجعة اللغة والأسلوب.</div>
+      <div class="committee"><strong>لجنة الإعلام والإنتاج</strong><br>التصميم والفيديو والمونتاج، وإدارة حضورنا على المنصات.</div>
+      <div class="committee"><strong>لجنة البرامج والأنشطة</strong><br>تنظيم الندوات والمسابقات والزيارات والفعاليات الثقافية.</div>
+    </div>
+  </section>
+
+  <form id="volunteerForm" class="card" novalidate>
+
+    <div class="section-title"><span>1</span>البيانات الشخصية</div>
+
+    <div class="field">
+      <label class="q" for="fullName">الاسم الكامل<span class="req">*</span></label>
+      <input type="text" id="fullName" name="fullName" required>
+    </div>
+    <div class="field">
+      <label class="q" for="email">البريد الإلكتروني<span class="req">*</span></label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="field">
+      <label class="q" for="phone">رقم الهاتف أو واتساب<span class="req">*</span></label>
+      <input type="tel" id="phone" name="phone" required>
+    </div>
+    <div class="field">
+      <label class="q" for="city">المحافظة أو المدينة<span class="req">*</span></label>
+      <input type="text" id="city" name="city" required>
+    </div>
+    <div class="field">
+      <label class="q" for="age">السن<span class="req">*</span></label>
+      <input type="number" id="age" name="age" min="10" max="80" required>
+    </div>
+    <div class="field">
+      <label class="q" for="education">المستوى التعليمي<span class="req">*</span></label>
+      <select id="education" name="education" required>
+        <option value="">اختر</option>
+        <option>ثانوية عامة</option>
+        <option>طالب جامعي</option>
+        <option>بكالوريوس</option>
+        <option>دراسات عليا</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="q" for="major">التخصص أو الجامعة</label>
+      <input type="text" id="major" name="major">
+    </div>
+    <div class="field">
+      <label class="q" for="job">الوظيفة الحالية</label>
+      <input type="text" id="job" name="job">
+    </div>
+
+    <div class="section-title"><span>2</span>اللجنة المفضلة</div>
+
+    <div class="field">
+      <span class="q">اللجنة الأولى<span class="req">*</span></span>
+      <div class="options" data-name="committee1" data-required="true">
+        <label class="option"><input type="radio" name="committee1" value="البحث والتوثيق التاريخي"><div>لجنة البحث والتوثيق التاريخي<small>الأبحاث، المصادر، التحقق من المعلومات</small></div></label>
+        <label class="option"><input type="radio" name="committee1" value="المحتوى والتحرير"><div>لجنة المحتوى والتحرير<small>المقالات، السلاسل، مراجعة الأسلوب</small></div></label>
+        <label class="option"><input type="radio" name="committee1" value="الإعلام والإنتاج"><div>لجنة الإعلام والإنتاج<small>التصميم، الفيديو، المنصات</small></div></label>
+        <label class="option"><input type="radio" name="committee1" value="البرامج والأنشطة"><div>لجنة البرامج والأنشطة<small>الندوات، المسابقات، الفعاليات</small></div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="q">اللجنة الثانية</span>
+      <div class="options">
+        <label class="option"><input type="radio" name="committee2" value="البحث والتوثيق التاريخي"><div>لجنة البحث والتوثيق التاريخي</div></label>
+        <label class="option"><input type="radio" name="committee2" value="المحتوى والتحرير"><div>لجنة المحتوى والتحرير</div></label>
+        <label class="option"><input type="radio" name="committee2" value="الإعلام والإنتاج"><div>لجنة الإعلام والإنتاج</div></label>
+        <label class="option"><input type="radio" name="committee2" value="البرامج والأنشطة"><div>لجنة البرامج والأنشطة</div></label>
+        <label class="option"><input type="radio" name="committee2" value="لا توجد"><div>لا توجد لجنة ثانية</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="fit">ما الذي يجعلك مناسبًا لهذه اللجنة؟<span class="req">*</span></label>
+      <textarea id="fit" name="fit" required></textarea>
+      <div class="hint">اكتب بضع جمل عن خبرتك أو اهتمامك (30 كلمة على الأقل).</div>
+    </div>
+
+    <div class="section-title"><span>3</span>المهارات</div>
+
+    <div class="field">
+      <span class="q">ما المهارات التي تمتلكها؟<span class="req">*</span></span>
+      <div class="options" data-name="skills" data-required="true" data-min="1">
+        <label class="option"><input type="checkbox" name="skills" value="كتابة وتحرير عربي"><div>كتابة وتحرير باللغة العربية</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="كتابة أو ترجمة إنجليزي"><div>كتابة أو ترجمة باللغة الإنجليزية</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="بحث تاريخي"><div>بحث تاريخي ومراجعة المصادر</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="تصميم جرافيك"><div>تصميم جرافيك</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="تصوير"><div>تصوير فوتوغرافي</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="مونتاج وفيديو"><div>مونتاج وإنتاج فيديو</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="منصات التواصل"><div>إدارة منصات التواصل الاجتماعي</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="تنظيم فعاليات"><div>تنظيم الفعاليات وإدارة المشروعات</div></label>
+        <label class="option"><input type="checkbox" name="skills" value="تطوير مواقع"><div>برمجة وتطوير مواقع</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="otherSkills">مهارات أخرى</label>
+      <input type="text" id="otherSkills" name="otherSkills">
+    </div>
+
+    <div class="field">
+      <span class="q">مستواك في مهاراتك الأساسية<span class="req">*</span></span>
+      <div class="scale" data-name="level" data-required="true">
+        <label><input type="radio" name="level" value="1"><span>1</span></label>
+        <label><input type="radio" name="level" value="2"><span>2</span></label>
+        <label><input type="radio" name="level" value="3"><span>3</span></label>
+        <label><input type="radio" name="level" value="4"><span>4</span></label>
+        <label><input type="radio" name="level" value="5"><span>5</span></label>
+      </div>
+      <div class="scale-ends"><span>مبتدئ</span><span>متمكن جدًا</span></div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="tools">أدوات تستخدمها بانتظام</label>
+      <input type="text" id="tools" name="tools">
+    </div>
+
+    <div class="section-title"><span>4</span>الخبرات والأعمال السابقة</div>
+
+    <div class="field">
+      <span class="q">هل سبق لك التطوع أو العمل في مجال ثقافي أو تعليمي أو تاريخي؟<span class="req">*</span></span>
+      <div class="options" data-name="experience" data-required="true">
+        <label class="option"><input type="radio" name="experience" value="نعم"><div>نعم</div></label>
+        <label class="option"><input type="radio" name="experience" value="لا"><div>لا</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="experienceDetails">اذكر أبرز تجربة لك</label>
+      <textarea id="experienceDetails" name="experienceDetails"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="q" for="portfolio">رابط أعمالك (إن وجد)</label>
+      <input type="url" id="portfolio" name="portfolio" placeholder="https://">
+      <div class="hint">يفضل رابط Drive أو Behance أو مدونة.</div>
+    </div>
+
+    <div class="section-title"><span>5</span>التوفر والالتزام</div>
+
+    <div class="field">
+      <span class="q">الأيام التي تستطيع فيها العمل<span class="req">*</span></span>
+      <div class="options days" data-name="days" data-required="true" data-min="1">
+        <label class="option"><input type="checkbox" name="days" value="السبت"><div>السبت</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الأحد"><div>الأحد</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الاثنين"><div>الاثنين</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الثلاثاء"><div>الثلاثاء</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الأربعاء"><div>الأربعاء</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الخميس"><div>الخميس</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الجمعة"><div>الجمعة</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="hours">عدد الساعات الأسبوعية التي تستطيع تخصيصها<span class="req">*</span></label>
+      <select id="hours" name="hours" required>
+        <option value="">اختر</option>
+        <option>أقل من 3 ساعات</option>
+        <option>من 3 إلى 5 ساعات</option>
+        <option>من 5 إلى 10 ساعات</option>
+        <option>أكثر من 10 ساعات</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <span class="q">الأوقات المفضلة للعمل</span>
+      <div class="options" data-name="times">
+        <label class="option"><input type="checkbox" name="times" value="صباحًا"><div>صباحًا</div></label>
+        <label class="option"><input type="checkbox" name="times" value="بعد الظهر"><div>بعد الظهر</div></label>
+        <label class="option"><input type="checkbox" name="times" value="مساءً"><div>مساءً</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="q">هل تستطيع الالتزام بالمواعيد وحضور الاجتماعات الدورية؟<span class="req">*</span></span>
+      <div class="options" data-name="commit" data-required="true">
+        <label class="option"><input type="radio" name="commit" value="نعم"><div>نعم</div></label>
+        <label class="option"><input type="radio" name="commit" value="إلى حد ما"><div>إلى حد ما</div></label>
+        <label class="option"><input type="radio" name="commit" value="لا"><div>لا</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="duration">مدة التزامك المتوقعة</label>
+      <select id="duration" name="duration">
+        <option value="">اختر</option>
+        <option>3 أشهر</option>
+        <option>6 أشهر</option>
+        <option>سنة</option>
+        <option>مفتوحة</option>
+      </select>
+    </div>
+
+    <div class="section-title"><span>6</span>الدافع والرؤية</div>
+
+    <div class="field">
+      <label class="q" for="why">لماذا ترغب في الانضمام إلى ديوان تاريخ؟<span class="req">*</span></label>
+      <textarea id="why" name="why" required></textarea>
+    </div>
+
+    <div class="field">
+      <label class="q" for="contribution">ما الذي تأمل في إضافته للديوان؟</label>
+      <textarea id="contribution" name="contribution"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="q" for="source">كيف عرفت عن الديوان؟</label>
+      <select id="source" name="source">
+        <option value="">اختر</option>
+        <option>وسائل التواصل الاجتماعي</option>
+        <option>صديق أو معرفة</option>
+        <option>فعالية</option>
+        <option>أخرى</option>
+      </select>
+    </div>
+
+    <div class="section-title"><span>7</span>الإقرارات</div>
+
+    <div class="field">
+      <div class="options" data-name="consent1" data-required="true">
+        <label class="option"><input type="checkbox" name="consent1" value="yes"><div>أوافق على الالتزام بمعايير التوثيق والتحقق من المصادر في الأعمال المنسوبة للديوان.<span class="req">*</span></div></label>
+        <label class="option"><input type="checkbox" name="consent2" value="yes"><div>أوافق على الالتزام بسرية المعلومات الداخلية للديوان.<span class="req">*</span></div></label>
+        <label class="option"><input type="checkbox" name="consent3" value="yes"><div>أوافق على استخدام بياناتي لأغراض التنسيق الداخلي والتواصل المتعلق بالتطوع فقط.<span class="req">*</span></div></label>
+        <label class="option"><input type="checkbox" name="consent4" value="yes"><div>أوافق على استخدام صوري أو مشاركاتي في أنشطة الديوان المنشورة (اختياري).</div></label>
+      </div>
+    </div>
+
+    <div class="error-box" id="errorBox">حدث خطأ أثناء إرسال الاستمارة، حاول مرة أخرى بعد قليل.</div>
+
+    <div class="submit-row">
+      <button type="submit" class="submit" id="submitBtn">إرسال الاستمارة</button>
+    </div>
+  </form>
+
+  <section class="card success" id="successBox">
+    <h2>شكرًا لانضمامك إلى ديوان تاريخ</h2>
+    <p>تم استلام استمارتك، وسنتواصل معك قريبًا.</p>
+  </section>
+
+</main>
+
+<footer>ديوان تاريخ · مؤسسة شبابية للتاريخ والحضارة</footer>
+
+<script>
+  // إعدادات Supabase (المفتاح العام، آمن للاستخدام في الصفحة، والصلاحيات محمية داخل قاعدة البيانات)
+  const SUPABASE_URL = 'https://zmavkswadmttfgpkcaaj.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_6-s_VE3OscbKndU_nNTQkQ_o1blIXTs';
+
+  const form = document.getElementById('volunteerForm');
+  const successBox = document.getElementById('successBox');
+  const errorBox = document.getElementById('errorBox');
+  const submitBtn = document.getElementById('submitBtn');
+  const requiredInputs = form.querySelectorAll('[required]');
+  const requiredGroups = form.querySelectorAll('[data-required="true"]');
+
+  const val = (id) => document.getElementById(id).value.trim() || null;
+  const radio = (name) => form.querySelector(`input[name="${name}"]:checked`)?.value || null;
+  const checkedValues = (name) => [...form.querySelectorAll(`input[name="${name}"]:checked`)].map((i) => i.value);
+  const isChecked = (name) => form.querySelector(`input[name="${name}"]`)?.checked === true;
+
+  function markError(el, isError) {
+    el.classList.toggle('invalid', isError);
+  }
+
+  function buildPayload() {
+    const experience = radio('experience');
+    const committee2 = radio('committee2');
+    const level = radio('level');
+    return {
+      full_name: val('fullName'),
+      email: val('email'),
+      phone: val('phone'),
+      city: val('city'),
+      age: parseInt(val('age'), 10),
+      education: val('education'),
+      major: val('major'),
+      job: val('job'),
+      committee_1: radio('committee1'),
+      committee_2: committee2 === 'لا توجد' ? null : committee2,
+      fit_reason: val('fit'),
+      skills: checkedValues('skills'),
+      other_skills: val('otherSkills'),
+      skill_level: level ? parseInt(level, 10) : null,
+      tools: val('tools'),
+      had_experience: experience === 'نعم' ? true : experience === 'لا' ? false : null,
+      experience_details: val('experienceDetails'),
+      portfolio_url: val('portfolio'),
+      available_days: checkedValues('days'),
+      weekly_hours: val('hours'),
+      preferred_times: checkedValues('times'),
+      commitment: radio('commit'),
+      duration: val('duration'),
+      motivation: val('why'),
+      contribution: val('contribution'),
+      heard_from: val('source'),
+      consent_terms: isChecked('consent1'),
+      consent_confidentiality: isChecked('consent2'),
+      consent_data: isChecked('consent3'),
+      consent_media: isChecked('consent4'),
+    };
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    let valid = true;
+
+    requiredInputs.forEach((input) => {
+      const ok = input.value.trim() !== '' &&
+        (input.type !== 'email' || input.checkValidity());
+      markError(input, !ok);
+      if (!ok) valid = false;
+    });
+
+    requiredGroups.forEach((group) => {
+      const name = group.dataset.name;
+      const min = parseInt(group.dataset.min || '1', 10);
+      const count = form.querySelectorAll(`input[name="${name}"]:checked`).length;
+      const ok = count >= min;
+      markError(group, !ok);
+      if (!ok) valid = false;
+    });
+
+    if (!valid) {
+      const firstError = form.querySelector('.invalid');
+      if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جاري الإرسال...';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/volunteers`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(buildPayload()),
+      });
+
+      if (!res.ok) throw new Error('Insert failed: ' + res.status);
+
+      form.style.display = 'none';
+      successBox.style.display = 'block';
+      successBox.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      errorBox.style.display = 'block';
+      errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'إرسال الاستمارة';
+    }
+  });
+</script>
+
+</body>
+</html>
