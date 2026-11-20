@@ -245,8 +245,6 @@
               <th>السن</th>
               <th>المدينة</th>
               <th>الهاتف</th>
-              <th>الأيام</th>
-              <th>الساعات</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -359,8 +357,6 @@
         v.age,
         v.city,
         v.phone,
-        (v.available_days || []).join('، '),
-        v.weekly_hours,
       ];
       cells.forEach((text) => {
         const td = document.createElement('td');
@@ -386,17 +382,8 @@
     ['اللجنة الثانية', (v) => v.committee_2],
     ['لماذا يناسب هذه اللجنة', (v) => v.fit_reason],
     ['المهارات', (v) => (v.skills || []).join('، ')],
-    ['مهارات أخرى', (v) => v.other_skills],
-    ['مستوى المهارات (من 5)', (v) => v.skill_level],
-    ['الأدوات', (v) => v.tools],
     ['سبق له التطوع أو العمل', (v) => (v.had_experience === null ? '' : v.had_experience ? 'نعم' : 'لا')],
     ['أبرز تجربة', (v) => v.experience_details],
-    ['رابط الأعمال', (v) => v.portfolio_url],
-    ['أيام العمل', (v) => (v.available_days || []).join('، ')],
-    ['الساعات الأسبوعية', (v) => v.weekly_hours],
-    ['الأوقات المفضلة', (v) => (v.preferred_times || []).join('، ')],
-    ['الالتزام بالمواعيد', (v) => v.commitment],
-    ['مدة الالتزام', (v) => v.duration],
     ['الدافع', (v) => v.motivation],
     ['ما يأمل في إضافته', (v) => v.contribution],
     ['كيف عرف عن الديوان', (v) => v.heard_from],
