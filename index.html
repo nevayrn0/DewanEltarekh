@@ -381,6 +381,30 @@
       </div>
     </div>
 
+    <!-- تم تعطيله مؤقتًا
+    <div class="field">
+      <label class="q" for="otherSkills">مهارات أخرى</label>
+      <input type="text" id="otherSkills" name="otherSkills">
+    </div>
+
+    <div class="field">
+      <span class="q">مستواك في مهاراتك الأساسية<span class="req">*</span></span>
+      <div class="scale" data-name="level" data-required="true">
+        <label><input type="radio" name="level" value="1"><span>1</span></label>
+        <label><input type="radio" name="level" value="2"><span>2</span></label>
+        <label><input type="radio" name="level" value="3"><span>3</span></label>
+        <label><input type="radio" name="level" value="4"><span>4</span></label>
+        <label><input type="radio" name="level" value="5"><span>5</span></label>
+      </div>
+      <div class="scale-ends"><span>مبتدئ</span><span>متمكن جدًا</span></div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="tools">أدوات تستخدمها بانتظام</label>
+      <input type="text" id="tools" name="tools">
+    </div>
+    -->
+
     <div class="section-title"><span>4</span>الخبرات والأعمال السابقة</div>
 
     <div class="field">
@@ -395,6 +419,71 @@
       <label class="q" for="experienceDetails">اذكر أبرز تجربة لك</label>
       <textarea id="experienceDetails" name="experienceDetails"></textarea>
     </div>
+
+    <!-- تم تعطيله مؤقتًا
+    <div class="field">
+      <label class="q" for="portfolio">رابط أعمالك (إن وجد)</label>
+      <input type="url" id="portfolio" name="portfolio" placeholder="https://">
+      <div class="hint">يفضل رابط Drive أو Behance أو مدونة.</div>
+    </div>
+    -->
+
+    <!-- تم تعطيله مؤقتًا
+    <div class="section-title"><span>5</span>التوفر والالتزام</div>
+
+    <div class="field">
+      <span class="q">الأيام التي تستطيع فيها العمل<span class="req">*</span></span>
+      <div class="options days" data-name="days" data-required="true" data-min="1">
+        <label class="option"><input type="checkbox" name="days" value="السبت"><div>السبت</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الأحد"><div>الأحد</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الاثنين"><div>الاثنين</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الثلاثاء"><div>الثلاثاء</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الأربعاء"><div>الأربعاء</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الخميس"><div>الخميس</div></label>
+        <label class="option"><input type="checkbox" name="days" value="الجمعة"><div>الجمعة</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="hours">عدد الساعات الأسبوعية التي تستطيع تخصيصها<span class="req">*</span></label>
+      <select id="hours" name="hours" required>
+        <option value="">اختر</option>
+        <option>أقل من 3 ساعات</option>
+        <option>من 3 إلى 5 ساعات</option>
+        <option>من 5 إلى 10 ساعات</option>
+        <option>أكثر من 10 ساعات</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <span class="q">الأوقات المفضلة للعمل</span>
+      <div class="options" data-name="times">
+        <label class="option"><input type="checkbox" name="times" value="صباحًا"><div>صباحًا</div></label>
+        <label class="option"><input type="checkbox" name="times" value="بعد الظهر"><div>بعد الظهر</div></label>
+        <label class="option"><input type="checkbox" name="times" value="مساءً"><div>مساءً</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="q">هل تستطيع الالتزام بالمواعيد وحضور الاجتماعات الدورية؟<span class="req">*</span></span>
+      <div class="options" data-name="commit" data-required="true">
+        <label class="option"><input type="radio" name="commit" value="نعم"><div>نعم</div></label>
+        <label class="option"><input type="radio" name="commit" value="إلى حد ما"><div>إلى حد ما</div></label>
+        <label class="option"><input type="radio" name="commit" value="لا"><div>لا</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q" for="duration">مدة التزامك المتوقعة</label>
+      <select id="duration" name="duration">
+        <option value="">اختر</option>
+        <option>3 أشهر</option>
+        <option>6 أشهر</option>
+        <option>سنة</option>
+        <option>مفتوحة</option>
+      </select>
+    </div>
+    -->
 
     <div class="section-title"><span>5</span>الدافع والرؤية</div>
 
@@ -469,6 +558,7 @@
 
   function buildPayload() {
     const experience = radio('experience');
+    // const level = radio('level');
     const committee2 = radio('committee2');
     return {
       full_name: val('fullName'),
@@ -486,6 +576,15 @@
       had_experience: experience === 'نعم' ? true : experience === 'لا' ? false : null,
       experience_details: val('experienceDetails'),
       motivation: val('why'),
+      // other_skills: val('otherSkills'),
+      // skill_level: level ? parseInt(level, 10) : null,
+      // tools: val('tools'),
+      // portfolio_url: val('portfolio'),
+      // available_days: checkedValues('days'),
+      // weekly_hours: val('hours'),
+      // preferred_times: checkedValues('times'),
+      // commitment: radio('commit'),
+      // duration: val('duration'),
       contribution: val('contribution'),
       heard_from: val('source'),
       consent_terms: isChecked('consent1'),
@@ -552,4 +651,3 @@
 
 </body>
 </html>
-
