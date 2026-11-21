@@ -5,197 +5,362 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>لوحة متابعة المتطوعين | ديوان تاريخ</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
+  /* ألوان الشعار المعتمدة */
   :root {
-    --black: #141414;
-    --gold: #C8A24A;
-    --gold-light: #E8D29A;
-    --cream: #F5EFE2;
-    --red: #B33A2B;
-    --ink: #1C1A17;
-    --muted: #6B6253;
-    --white: #FFFFFF;
+    --black: #1A1A1A;
+    --red: #A94732;
+    --gold: #B58B3D;
+    --sand: #D7C7A5;
+    --bg: #F6F2EA;
+    --card: #FFFFFF;
+    --ink: #1F1B16;
+    --muted: #7A6F60;
+    --line: #ECE4D2;
     --radius: 14px;
+    --shadow: 0 1px 2px rgba(26, 26, 26, 0.06), 0 8px 24px rgba(26, 26, 26, 0.06);
   }
 
   * { box-sizing: border-box; }
-
   body {
     margin: 0;
     font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
-    background: var(--cream);
+    background: var(--bg);
     color: var(--ink);
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
 
-  header.top {
+  /* ===== الهيدر ===== */
+  .topbar {
     background: var(--black);
-    color: var(--gold);
-    padding: 16px 24px;
-    border-bottom: 4px solid var(--gold);
+    color: var(--sand);
+    border-bottom: 3px solid var(--gold);
+  }
+  .topbar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; border: 1px solid var(--gold); }
+  .brand h1 { font-size: 18px; margin: 0; color: var(--gold); font-weight: 800; }
+  .brand small { display: block; color: var(--sand); opacity: 0.8; font-weight: 600; font-size: 12px; }
+  .top-actions { display: none; gap: 8px; }
+  .top-actions.show { display: flex; }
+
+  /* ===== الأزرار ===== */
+  .btn {
+    font: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.15s, transform 0.05s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.6; cursor: wait; }
+  .btn-gold { background: var(--gold); color: var(--black); }
+  .btn-gold:hover { background: #a57c33; color: #fff; }
+  .btn-ghost { background: transparent; color: var(--sand); border-color: rgba(215, 199, 165, 0.35); }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-outline { background: #fff; color: var(--black); border-color: #d9cdb2; }
+  .btn-outline:hover { border-color: var(--gold); }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* ===== شاشة الدخول ===== */
+  #loginView {
+    max-width: 420px;
+    margin: 56px auto;
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 34px 28px;
+    border-top: 4px solid var(--gold);
+    text-align: center;
+  }
+  #loginView img { width: 84px; height: 84px; object-fit: cover; border-radius: 16px; margin-bottom: 12px; }
+  #loginView h2 { margin: 0 0 4px; color: var(--black); font-size: 22px; }
+  #loginView p { margin: 0 0 22px; color: var(--muted); font-size: 14px; }
+  .field { margin-bottom: 14px; text-align: right; }
+  .field label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  input, select {
+    width: 100%;
+    font: inherit;
+    padding: 11px 13px;
+    border: 1.5px solid #dccfb3;
+    border-radius: 10px;
+    background: #fffdf8;
+    color: var(--ink);
+  }
+  input:focus, select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(181, 139, 61, 0.22); }
+  .btn-block { width: 100%; padding: 12px; font-size: 16px; }
+  .msg {
+    display: none;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #f8e9e5;
+    color: var(--red);
+    border: 1px solid #e3b9ae;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* ===== الداشبورد ===== */
+  #dashView { display: none; }
+  .notice {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .notice::before {
+    content: "";
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 1000px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .stats { grid-template-columns: 1fr; } }
+
+  .stat {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    border-top: 3px solid var(--gold);
+  }
+  .stat.total { background: var(--black); border-top-color: var(--gold); }
+  .stat.total .label, .stat.total .value { color: var(--sand); }
+  .stat.total .value { color: var(--gold); }
+  .stat .label { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .stat .value { font-size: 28px; font-weight: 800; color: var(--black); line-height: 1.2; margin-top: 2px; }
+  .stat .bar { height: 5px; background: #efe7d6; border-radius: 99px; margin-top: 10px; overflow: hidden; }
+  .stat .bar span { display: block; height: 100%; background: var(--gold); border-radius: 99px; width: 0; transition: width 0.4s; }
+  .stat.c-res { border-top-color: var(--gold); }
+  .stat.c-con { border-top-color: var(--red); }
+  .stat.c-med { border-top-color: var(--black); }
+  .stat.c-prg { border-top-color: var(--sand); }
+
+  .panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .panel-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
   }
-  header.top h1 { font-size: 20px; margin: 0; }
-  header.top .actions { display: flex; gap: 8px; }
-
-  main { max-width: 1200px; margin: 24px auto; padding: 0 16px 60px; }
-
-  .card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 22px;
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
-    border-top: 4px solid var(--gold);
-    margin-bottom: 20px;
-  }
-
-  /* شاشة الدخول */
-  #loginView { max-width: 420px; margin: 60px auto; }
-  #loginView h2 { color: var(--black); margin-top: 0; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-weight: 700; margin-bottom: 6px; }
-  input, select {
-    width: 100%;
-    font: inherit;
-    padding: 10px 12px;
-    border: 1.5px solid #d9cfb8;
-    border-radius: 10px;
-    background: #fffdf8;
-  }
-  input:focus, select:focus {
-    outline: none;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(200, 162, 74, 0.25);
-  }
-
-  button {
-    font: inherit;
-    font-weight: 700;
-    border: 2px solid var(--black);
-    border-radius: 999px;
-    padding: 10px 22px;
-    cursor: pointer;
-    background: var(--gold);
+  .panel-head h2 { margin: 0; font-size: 17px; color: var(--black); }
+  .count-pill {
+    background: #f3ecdc;
     color: var(--black);
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 99px;
+    padding: 3px 12px;
   }
-  button.secondary { background: transparent; color: var(--gold); border-color: var(--gold); }
-  button:disabled { opacity: 0.6; cursor: wait; }
-  button.block { width: 100%; }
-
-  .msg-error {
-    display: none;
-    background: #fbeae7;
-    color: var(--red);
-    border: 1.5px solid var(--red);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-top: 12px;
-    font-weight: 600;
-  }
-
-  /* الداشبورد */
-  #dashView { display: none; }
-
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .stat {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 16px;
-    border-right: 4px solid var(--gold);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  }
-  .stat .label { font-size: 13px; color: var(--muted); }
-  .stat .value { font-size: 26px; font-weight: 800; color: var(--black); }
 
   .toolbar {
     display: grid;
-    grid-template-columns: 2fr 1fr auto;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 16px;
+    grid-template-columns: 1fr 220px auto auto;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    background: #fcfaf5;
   }
-  @media (max-width: 720px) {
-    .toolbar { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 860px) { .toolbar { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .toolbar { grid-template-columns: 1fr; } }
+  .toolbar input, .toolbar select { padding: 9px 12px; font-size: 14px; }
 
   .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td {
-    padding: 10px 12px;
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+  thead th {
+    background: var(--black);
+    color: var(--sand);
+    font-weight: 700;
+    font-size: 13px;
     text-align: right;
-    border-bottom: 1px solid #ece4d0;
+    padding: 12px 14px;
+    position: sticky;
+    top: 0;
     white-space: nowrap;
   }
-  th { background: var(--black); color: var(--gold); position: sticky; top: 0; }
-  tbody tr { cursor: pointer; }
-  tbody tr:hover { background: #fbf6e8; }
+  tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  tbody tr { cursor: pointer; transition: background 0.12s; }
+  tbody tr:nth-child(even) { background: #fbf8f1; }
+  tbody tr:hover { background: #f3ead6; }
+  td.name { font-weight: 700; color: var(--black); }
+  td.muted { color: var(--muted); }
 
-  .empty { text-align: center; color: var(--muted); padding: 30px; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+  .c-res-b { background: #f7efd9; color: #7a5a1c; border-color: #e6d3a2; }
+  .c-con-b { background: #f8e9e5; color: var(--red); border-color: #e7c0b5; }
+  .c-med-b { background: var(--black); color: var(--sand); }
+  .c-prg-b { background: #efe8d8; color: var(--black); border-color: #d9cdb2; }
+  .badge-none { background: #f1efea; color: var(--muted); }
 
-  /* نافذة التفاصيل */
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 48px 20px;
+    font-size: 15px;
+  }
+  .empty strong { display: block; color: var(--black); margin-bottom: 4px; font-size: 16px; }
+
+  .panel-foot {
+    padding: 10px 18px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+  }
+
+  /* ===== نافذة التفاصيل ===== */
   .modal-bg {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(26, 26, 26, 0.6);
     z-index: 50;
     align-items: center;
     justify-content: center;
     padding: 16px;
   }
   .modal {
-    background: var(--white);
-    border-radius: var(--radius);
-    max-width: 680px;
+    background: var(--card);
+    border-radius: 18px;
+    max-width: 720px;
     width: 100%;
-    max-height: 88vh;
+    max-height: 90vh;
     overflow-y: auto;
-    padding: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
     border-top: 4px solid var(--gold);
   }
-  .modal h2 { margin-top: 0; color: var(--black); }
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    z-index: 1;
+  }
+  .modal-head h2 { margin: 0; font-size: 18px; color: var(--black); }
+  .modal-head .sub { font-size: 13px; color: var(--muted); }
+  .x-btn {
+    background: #f3ecdc;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    color: var(--black);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .modal-body { padding: 8px 22px 22px; }
+  .group-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 0.3px;
+    margin: 18px 0 6px;
+  }
   .detail-row {
     display: grid;
-    grid-template-columns: 170px 1fr;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid #ece4d0;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14px;
   }
-  .detail-row .k { font-weight: 700; color: var(--muted); }
-  .detail-row .v { white-space: pre-wrap; word-break: break-word; }
-  .modal .close-row { text-align: left; margin-top: 16px; }
+  .detail-row .k { color: var(--muted); font-weight: 600; }
+  .detail-row .v { color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  @media (max-width: 560px) { .detail-row { grid-template-columns: 1fr; gap: 2px; } }
 
-  .readonly-note {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 12px;
+  .toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--black);
+    color: var(--sand);
+    padding: 10px 18px;
+    border-radius: 10px;
+    border-bottom: 2px solid var(--gold);
+    font-size: 14px;
+    display: none;
+    z-index: 60;
+    box-shadow: var(--shadow);
   }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <h1>لوحة متابعة المتطوعين · ديوان تاريخ</h1>
-  <div class="actions" id="headerActions" style="display:none">
-    <button class="secondary" id="refreshBtn">تحديث</button>
-    <button class="secondary" id="logoutBtn">تسجيل الخروج</button>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="/logo.jpg" alt="شعار ديوان تاريخ">
+      <div>
+        <h1>ديوان تاريخ</h1>
+        <small>متابعة طلبات التطوع</small>
+      </div>
+    </div>
+    <div class="top-actions" id="topActions">
+      <button class="btn btn-ghost" id="refreshBtn">تحديث</button>
+      <button class="btn btn-ghost" id="logoutBtn">تسجيل الخروج</button>
+    </div>
   </div>
 </header>
 
 <main>
 
   <!-- شاشة الدخول -->
-  <section id="loginView" class="card">
+  <section id="loginView">
+    <img src="/logo.jpg" alt="شعار ديوان تاريخ">
     <h2>تسجيل دخول الأدمن</h2>
+    <p>ادخل ببيانات حساب الإدارة لمتابعة الطلبات</p>
     <form id="loginForm" novalidate>
       <div class="field">
         <label for="email">البريد الإلكتروني</label>
@@ -205,24 +370,48 @@
         <label for="password">كلمة المرور</label>
         <input type="password" id="password" autocomplete="current-password" required>
       </div>
-      <button type="submit" class="block" id="loginBtn">دخول</button>
-      <div class="msg-error" id="loginError">البيانات غير صحيحة، تأكد من الإيميل وكلمة المرور.</div>
+      <button type="submit" class="btn btn-gold btn-block" id="loginBtn">دخول</button>
+      <div class="msg" id="loginError">البيانات غير صحيحة، تأكد من الإيميل وكلمة المرور.</div>
     </form>
   </section>
 
   <!-- الداشبورد -->
   <section id="dashView">
-    <p class="readonly-note">عرض فقط: لا يمكن تعديل أو حذف الطلبات من هذه اللوحة.</p>
+    <p class="notice">عرض فقط: الطلبات متاحة للقراءة والتصدير، ومفيش تعديل أو حذف من هنا.</p>
 
     <div class="stats">
-      <div class="stat"><div class="label">إجمالي الطلبات</div><div class="value" id="statTotal">0</div></div>
-      <div class="stat"><div class="label">لجنة البحث والتوثيق</div><div class="value" id="statRes">0</div></div>
-      <div class="stat"><div class="label">لجنة المحتوى والتحرير</div><div class="value" id="statContent">0</div></div>
-      <div class="stat"><div class="label">لجنة الإعلام والإنتاج</div><div class="value" id="statMedia">0</div></div>
-      <div class="stat"><div class="label">لجنة البرامج والأنشطة</div><div class="value" id="statPrograms">0</div></div>
+      <div class="stat total">
+        <div class="label">إجمالي الطلبات</div>
+        <div class="value" id="statTotal">0</div>
+      </div>
+      <div class="stat c-res">
+        <div class="label">البحث والتوثيق التاريخي</div>
+        <div class="value" id="statRes">0</div>
+        <div class="bar"><span id="barRes"></span></div>
+      </div>
+      <div class="stat c-con">
+        <div class="label">المحتوى والتحرير</div>
+        <div class="value" id="statCon">0</div>
+        <div class="bar"><span id="barCon"></span></div>
+      </div>
+      <div class="stat c-med">
+        <div class="label">الإعلام والإنتاج</div>
+        <div class="value" id="statMed">0</div>
+        <div class="bar"><span id="barMed"></span></div>
+      </div>
+      <div class="stat c-prg">
+        <div class="label">البرامج والأنشطة</div>
+        <div class="value" id="statPrg">0</div>
+        <div class="bar"><span id="barPrg"></span></div>
+      </div>
     </div>
 
-    <div class="card">
+    <div class="panel">
+      <div class="panel-head">
+        <h2>قائمة المتطوعين</h2>
+        <span class="count-pill" id="countPill">0 طلب</span>
+      </div>
+
       <div class="toolbar">
         <input type="search" id="searchInput" placeholder="ابحث بالاسم أو الإيميل أو المدينة">
         <select id="committeeFilter">
@@ -232,16 +421,19 @@
           <option value="الإعلام والإنتاج">الإعلام والإنتاج</option>
           <option value="البرامج والأنشطة">البرامج والأنشطة</option>
         </select>
-        <div class="msg-error" id="dataError" style="margin:0">تعذر تحميل البيانات.</div>
+        <button class="btn btn-outline" id="exportBtn">تصدير Excel</button>
+        <button class="btn btn-outline" id="refreshBtnMain">تحديث</button>
       </div>
+
+      <div class="msg" id="dataError" style="margin:14px 18px;">تعذر تحميل البيانات، جرّب تحديث الصفحة.</div>
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>التاريخ</th>
+              <th>تاريخ التقديم</th>
               <th>الاسم</th>
-              <th>اللجنة الأولى</th>
+              <th>اللجنة</th>
               <th>السن</th>
               <th>المدينة</th>
               <th>الهاتف</th>
@@ -251,8 +443,12 @@
           </thead>
           <tbody id="rows"></tbody>
         </table>
-        <div class="empty" id="emptyState" style="display:none">لا توجد طلبات مطابقة.</div>
+        <div class="empty" id="emptyState" style="display:none">
+          <strong>مفيش طلبات مطابقة</strong>
+          جرّب تغيّر البحث أو الفلتر.
+        </div>
       </div>
+      <div class="panel-foot">اضغط على أي صف عشان تشوف تفاصيل المتطوع كاملة.</div>
     </div>
   </section>
 
@@ -261,40 +457,58 @@
 <!-- نافذة تفاصيل الطلب -->
 <div class="modal-bg" id="modalBg">
   <div class="modal" role="dialog" aria-modal="true">
-    <h2 id="modalTitle">تفاصيل الطلب</h2>
-    <div id="modalBody"></div>
-    <div class="close-row"><button class="secondary" id="closeModal">إغلاق</button></div>
+    <div class="modal-head">
+      <div>
+        <h2 id="modalTitle">تفاصيل الطلب</h2>
+        <div class="sub" id="modalSub"></div>
+      </div>
+      <button class="x-btn" id="closeModal" aria-label="إغلاق">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
   // إعدادات Supabase (المفتاح العام، والصلاحيات محمية داخل قاعدة البيانات)
   const SUPABASE_URL = 'https://zmavkswadmttfgpkcaaj.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_6-s_VE3OscbKndU_nNTQkQ_o1blIXTs';
 
-  // التوكن يتحفظ في الذاكرة فقط، ويتمسح عند تسجيل الخروج أو قفل الصفحة
+  // التوكن في الذاكرة بس، ويتمسح عند الخروج أو قفل الصفحة
   let accessToken = null;
   let volunteers = [];
 
   const $ = (id) => document.getElementById(id);
 
-  const loginView = $('loginView');
-  const dashView = $('dashView');
-  const headerActions = $('headerActions');
+  const COMMITTEE_CLASS = {
+    'البحث والتوثيق التاريخي': 'c-res-b',
+    'المحتوى والتحرير': 'c-con-b',
+    'الإعلام والإنتاج': 'c-med-b',
+    'البرامج والأنشطة': 'c-prg-b',
+  };
+
+  function showToast(text) {
+    const t = $('toast');
+    t.textContent = text;
+    t.style.display = 'block';
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => (t.style.display = 'none'), 2600);
+  }
 
   function showLogin() {
     accessToken = null;
     volunteers = [];
-    dashView.style.display = 'none';
-    headerActions.style.display = 'none';
-    loginView.style.display = 'block';
+    $('dashView').style.display = 'none';
+    $('topActions').classList.remove('show');
+    $('loginView').style.display = 'block';
     $('password').value = '';
   }
 
   function showDashboard() {
-    loginView.style.display = 'none';
-    dashView.style.display = 'block';
-    headerActions.style.display = 'flex';
+    $('loginView').style.display = 'none';
+    $('dashView').style.display = 'block';
+    $('topActions').classList.add('show');
   }
 
   async function signIn(email, password) {
@@ -310,10 +524,7 @@
 
   async function fetchVolunteers() {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/volunteers?select=*&order=created_at.desc`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${accessToken}` },
     });
     if (res.status === 401 || res.status === 403) throw new Error('unauthorized');
     if (!res.ok) throw new Error('fetch');
@@ -322,112 +533,223 @@
 
   function formatDate(iso) {
     if (!iso) return '';
-    const d = new Date(iso);
-    return d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+    return new Date(iso).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
   }
 
   function renderStats(list) {
+    const total = list.length;
     const count = (c) => list.filter((v) => v.committee_1 === c).length;
-    $('statTotal').textContent = list.length;
-    $('statRes').textContent = count('البحث والتوثيق التاريخي');
-    $('statContent').textContent = count('المحتوى والتحرير');
-    $('statMedia').textContent = count('الإعلام والإنتاج');
-    $('statPrograms').textContent = count('البرامج والأنشطة');
+    const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
+
+    const res = count('البحث والتوثيق التاريخي');
+    const con = count('المحتوى والتحرير');
+    const med = count('الإعلام والإنتاج');
+    const prg = count('البرامج والأنشطة');
+
+    $('statTotal').textContent = total;
+    $('statRes').textContent = res;
+    $('statCon').textContent = con;
+    $('statMed').textContent = med;
+    $('statPrg').textContent = prg;
+
+    $('barRes').style.width = pct(res) + '%';
+    $('barCon').style.width = pct(con) + '%';
+    $('barMed').style.width = pct(med) + '%';
+    $('barPrg').style.width = pct(prg) + '%';
   }
 
-  function renderRows() {
+  function getFiltered() {
     const q = $('searchInput').value.trim().toLowerCase();
     const committee = $('committeeFilter').value;
-
-    const filtered = volunteers.filter((v) => {
+    return volunteers.filter((v) => {
       const matchesCommittee = !committee || v.committee_1 === committee;
       const haystack = [v.full_name, v.email, v.city].join(' ').toLowerCase();
       const matchesSearch = !q || haystack.includes(q);
       return matchesCommittee && matchesSearch;
     });
+  }
 
+  function renderRows() {
+    const filtered = getFiltered();
     const tbody = $('rows');
     tbody.textContent = '';
     $('emptyState').style.display = filtered.length ? 'none' : 'block';
+    $('countPill').textContent = `${filtered.length} من ${volunteers.length} طلب`;
 
     filtered.forEach((v) => {
       const tr = document.createElement('tr');
+
       const cells = [
-        formatDate(v.created_at),
-        v.full_name,
-        v.committee_1,
-        v.age,
-        v.city,
-        v.phone,
-        // (v.available_days || []).join('، '),
-        // v.weekly_hours,
+        { text: formatDate(v.created_at), cls: 'muted' },
+        { text: v.full_name, cls: 'name' },
+        { badge: v.committee_1 },
+        { text: v.age },
+        { text: v.city },
+        { text: v.phone },
+        // { text: (v.available_days || []).join('، ') },
+        // { text: v.weekly_hours },
       ];
-      cells.forEach((text) => {
+
+      cells.forEach((c) => {
         const td = document.createElement('td');
-        td.textContent = text ?? '';
+        if (c.badge !== undefined) {
+          const span = document.createElement('span');
+          span.className = 'badge ' + (COMMITTEE_CLASS[c.badge] || 'badge-none');
+          span.textContent = c.badge || '—';
+          td.appendChild(span);
+        } else {
+          td.textContent = c.text ?? '';
+          if (c.cls) td.className = c.cls;
+        }
         tr.appendChild(td);
       });
+
       tr.addEventListener('click', () => openDetails(v));
       tbody.appendChild(tr);
     });
   }
 
-  const DETAIL_FIELDS = [
-    ['التاريخ', (v) => formatDate(v.created_at)],
-    ['الاسم الكامل', (v) => v.full_name],
-    ['البريد الإلكتروني', (v) => v.email],
-    ['الهاتف', (v) => v.phone],
-    ['المدينة', (v) => v.city],
-    ['السن', (v) => v.age],
-    ['المستوى التعليمي', (v) => v.education],
-    ['التخصص أو الجامعة', (v) => v.major],
-    ['الوظيفة', (v) => v.job],
-    ['اللجنة الأولى', (v) => v.committee_1],
-    ['اللجنة الثانية', (v) => v.committee_2],
-    ['لماذا يناسب هذه اللجنة', (v) => v.fit_reason],
-    ['المهارات', (v) => (v.skills || []).join('، ')],
-    // ['مهارات أخرى', (v) => v.other_skills],
-    // ['مستوى المهارات (من 5)', (v) => v.skill_level],
-    // ['الأدوات', (v) => v.tools],
-    ['سبق له التطوع أو العمل', (v) => (v.had_experience === null ? '' : v.had_experience ? 'نعم' : 'لا')],
-    ['أبرز تجربة', (v) => v.experience_details],
-    // ['رابط الأعمال', (v) => v.portfolio_url],
-    // ['أيام العمل', (v) => (v.available_days || []).join('، ')],
-    // ['الساعات الأسبوعية', (v) => v.weekly_hours],
-    // ['الأوقات المفضلة', (v) => (v.preferred_times || []).join('، ')],
-    // ['الالتزام بالمواعيد', (v) => v.commitment],
-    // ['مدة الالتزام', (v) => v.duration],
-    ['الدافع', (v) => v.motivation],
-    ['ما يأمل في إضافته', (v) => v.contribution],
-    ['كيف عرف عن الديوان', (v) => v.heard_from],
-    ['موافقة التوثيق', (v) => (v.consent_terms ? 'نعم' : 'لا')],
-    ['موافقة السرية', (v) => (v.consent_confidentiality ? 'نعم' : 'لا')],
-    ['موافقة استخدام البيانات', (v) => (v.consent_data ? 'نعم' : 'لا')],
-    ['موافقة استخدام الصور', (v) => (v.consent_media ? 'نعم' : 'لا')],
+  // مجموعات التفاصيل
+  const DETAIL_GROUPS = [
+    {
+      title: 'البيانات الشخصية',
+      fields: [
+        ['الاسم الكامل', (v) => v.full_name],
+        ['البريد الإلكتروني', (v) => v.email],
+        ['الهاتف', (v) => v.phone],
+        ['المدينة', (v) => v.city],
+        ['السن', (v) => v.age],
+        ['المستوى التعليمي', (v) => v.education],
+        ['الجامعة أو التخصص', (v) => v.major],
+        ['الوظيفة', (v) => v.job],
+      ],
+    },
+    {
+      title: 'اللجنة والمهارات',
+      fields: [
+        ['اللجنة الأولى', (v) => v.committee_1],
+        ['اللجنة الثانية', (v) => v.committee_2],
+        ['المهارات', (v) => (v.skills || []).join('، ')],
+        // ['مهارات أخرى', (v) => v.other_skills],
+        // ['مستوى المهارات (من 5)', (v) => v.skill_level],
+        // ['الأدوات', (v) => v.tools],
+        ['سبق له التطوع أو العمل', (v) => (v.had_experience === null ? '' : v.had_experience ? 'نعم' : 'لا')],
+        ['أبرز تجربة', (v) => v.experience_details],
+        // ['رابط الأعمال', (v) => v.portfolio_url],
+        ['لماذا يناسب هذه اللجنة', (v) => v.fit_reason],
+      ],
+    },
+    {
+      title: 'الدافع',
+      fields: [
+        ['لماذا يريد الانضمام', (v) => v.motivation],
+        ['ما يأمل في إضافته', (v) => v.contribution],
+        ['كيف عرف عن الديوان', (v) => v.heard_from],
+      ],
+    },
+    {
+      title: 'الموافقات',
+      fields: [
+        ['توثيق المعلومات', (v) => (v.consent_terms ? 'نعم' : 'لا')],
+        ['السرية', (v) => (v.consent_confidentiality ? 'نعم' : 'لا')],
+        ['استخدام البيانات', (v) => (v.consent_data ? 'نعم' : 'لا')],
+        ['استخدام الصور', (v) => (v.consent_media ? 'نعم' : 'لا')],
+      ],
+    },
+    // {
+    //   title: 'التوفر والالتزام (معطل مؤقتًا)',
+    //   fields: [
+    //     ['أيام العمل', (v) => (v.available_days || []).join('، ')],
+    //     ['الساعات الأسبوعية', (v) => v.weekly_hours],
+    //     ['الأوقات المفضلة', (v) => (v.preferred_times || []).join('، ')],
+    //     ['الالتزام بالمواعيد', (v) => v.commitment],
+    //     ['مدة الالتزام', (v) => v.duration],
+    //   ],
+    // },
   ];
 
   function openDetails(v) {
     $('modalTitle').textContent = v.full_name || 'تفاصيل الطلب';
+    $('modalSub').textContent = `${v.committee_1 || 'بدون لجنة'} · ${formatDate(v.created_at)}`;
+
     const body = $('modalBody');
     body.textContent = '';
-    DETAIL_FIELDS.forEach(([label, getter]) => {
-      const row = document.createElement('div');
-      row.className = 'detail-row';
-      const k = document.createElement('div');
-      k.className = 'k';
-      k.textContent = label;
-      const val = document.createElement('div');
-      val.className = 'v';
-      const value = getter(v);
-      val.textContent = value === null || value === undefined || value === '' ? '—' : value;
-      row.append(k, val);
-      body.appendChild(row);
+
+    DETAIL_GROUPS.forEach((group) => {
+      const t = document.createElement('div');
+      t.className = 'group-title';
+      t.textContent = group.title;
+      body.appendChild(t);
+
+      group.fields.forEach(([label, getter]) => {
+        const row = document.createElement('div');
+        row.className = 'detail-row';
+        const k = document.createElement('div');
+        k.className = 'k';
+        k.textContent = label;
+        const val = document.createElement('div');
+        val.className = 'v';
+        const value = getter(v);
+        val.textContent = value === null || value === undefined || value === '' ? '—' : value;
+        row.append(k, val);
+        body.appendChild(row);
+      });
     });
+
     $('modalBg').style.display = 'flex';
   }
 
   function closeDetails() {
     $('modalBg').style.display = 'none';
+  }
+
+  // ===== التصدير =====
+  // بيصدّر الصفوف اللي ظاهرة حاليًا (بعد البحث والفلتر)، وبالأعمدة الأساسية بس
+  function exportRows() {
+    const rows = getFiltered();
+    if (!rows.length) {
+      showToast('مفيش بيانات للتصدير');
+      return;
+    }
+
+    const data = rows.map((v) => ({
+      'الاسم': v.full_name || '',
+      'الرقم': v.phone || '',
+      'البريد الإلكتروني': v.email || '',
+      'الجامعة / التخصص': v.major || '',
+      'السن': v.age ?? '',
+      'اللجنة': v.committee_1 || '',
+      'المهارات': (v.skills || []).join('، '),
+    }));
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    const fileName = `متطوعين-ديوان-تاريخ-${stamp}`;
+
+    if (window.XLSX) {
+      const ws = XLSX.utils.json_to_sheet(data);
+      ws['!cols'] = [
+        { wch: 24 }, { wch: 16 }, { wch: 30 }, { wch: 26 },
+        { wch: 8 }, { wch: 24 }, { wch: 44 },
+      ];
+      ws['!autofilter'] = { ref: XLSX.utils.encode_range(XLSX.utils.decode_range(ws['!ref'])) };
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'المتطوعين');
+      XLSX.writeFile(wb, fileName + '.xlsx');
+    } else {
+      // احتياطي لو مكتبة Excel مش اتحملت: ملف CSV بيفتح في Excel مباشرة
+      const headers = Object.keys(data[0]);
+      const esc = (x) => `"${String(x).replace(/"/g, '""')}"`;
+      const csv = [headers.map(esc).join(',')]
+        .concat(data.map((r) => headers.map((h) => esc(r[h])).join(',')))
+        .join('\r\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName + '.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    showToast(`تم تصدير ${rows.length} طلب`);
   }
 
   async function loadDashboard() {
@@ -472,12 +794,17 @@
   });
 
   $('refreshBtn').addEventListener('click', loadDashboard);
+  $('refreshBtnMain').addEventListener('click', loadDashboard);
   $('logoutBtn').addEventListener('click', showLogin);
+  $('exportBtn').addEventListener('click', exportRows);
   $('searchInput').addEventListener('input', renderRows);
   $('committeeFilter').addEventListener('change', renderRows);
   $('closeModal').addEventListener('click', closeDetails);
   $('modalBg').addEventListener('click', (e) => {
     if (e.target === $('modalBg')) closeDetails();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDetails();
   });
 </script>
 
